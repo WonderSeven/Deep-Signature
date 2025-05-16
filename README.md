@@ -5,12 +5,12 @@
 ---
 
 <p align="center">
-    <img width=380 src="./figs/framework.png">
+    <img width=420 src="./figs/framework.png">
     <!-- <br>Fig 1. The overview of network architecture for Deep Signature.</br> -->
 </p>
 
 
-This repository provides the official implementations and experiments for our paper "[Deep Signature: Characterization of Large-Scale Molecular Dynamics](https://openreview.net/pdf?id=xayT1nn8Mg)". The core code for implement our method can be found in [models/deep_signature.py](models/deep_signature.py). Please follow the steps to prepare running environment, and run our code.
+This repository provides the official implementations and experiments for our paper "[Deep Signature: Characterization of Large-Scale Molecular Dynamics](https://openreview.net/pdf?id=xayT1nn8Mg)". The core code for implementing our method can be found in [models/deep_signature.py](models/deep_signature.py). Please follow the steps to prepare running environment, and run our code.
 
 ### Prepare Environment
 
@@ -33,7 +33,7 @@ This repository provides the official implementations and experiments for our pa
     pip install wandb
 
 
-
+    
 
 ### 🚀 Quick Start
 
