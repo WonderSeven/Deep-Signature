@@ -122,12 +122,6 @@ class GPCR(InMemoryDataset):
             non_water_mask = [i for i in range(traj.n_atoms) if i not in water_indices]
             print('Original atoms:{}, remove water:{}, kept atoms:{}'.format(traj.n_atoms, len(water_indices),
                                                                              traj.n_atoms - len(water_indices)))
-            # Step 2.1: remove hydrogen
-            # hydrogen_indices = traj.topology.select('name H')
-            # non_water_mask = [i for i in range(traj.n_atoms) if
-            #                   i not in water_indices and i not in hydrogen_indices]
-            # print('Original atoms:{}, remove water:{} and hydrogen:{}, kept atoms:{}'.format(traj.n_atoms,
-            # len(water_indices), len(hydrogen_indices), traj.n_atoms-len(water_indices)-len(hydrogen_indices)))
 
             traj = traj.atom_slice(non_water_mask)
 
@@ -264,57 +258,3 @@ class GPCR(InMemoryDataset):
         test_idx = test_idx.reshape(-1)
 
         return train_idx, val_idx, test_idx
-
-
-if __name__ == '__main__':
-    from torch_geometric.loader import DataLoader
-    data_root = '/hdd2/qtx/Datasets/GPCR-2'
-    data_reg = 'gpcr'
-    all_type = 'backbone'
-    traj_nums = 26
-    batch_size = 8
-    num_workers = 0
-    groups = 5
-    folds = 5
-
-    start_time = time.time()
-    gpcr_dataset = GPCR(data_root, traj_nums=traj_nums, groups=groups, folds=folds, dataset_arg=data_reg, atom_type=all_type)
-    # print(egfr_dataset.raw_file_names)
-    for idx, file_name in enumerate(gpcr_dataset.raw_file_names[0]):
-        print(idx, file_name)
-
-    idx_train, id_val, idx_test = gpcr_dataset.get_idx_split()
-    pdb.set_trace()
-    train_loader = DataLoader(Subset(gpcr_dataset, idx_train), batch_size=16, shuffle=True, drop_last=False)
-    val_loader = DataLoader(Subset(gpcr_dataset, idx_train), batch_size=groups, shuffle=False)
-    test_loader = DataLoader(Subset(gpcr_dataset, idx_test), batch_size=groups * folds, shuffle=False)
-
-    print('Load cost time:{}'.format(time.time() - start_time)) # 1828.675179719925 431.7890655994415
-
-    for epoch in range(1):
-        for idx, data in enumerate(train_loader):
-            cur_x, cur_y = data.pos, data.y
-            print('Epoch:{} || Iteration:{}, data shape:{}, label shape:{}'.format(epoch, idx, cur_x.shape, cur_y.shape))
-            # print(torch.min(cur_x), torch.max(cur_x))
-            # print(cur_x)
-            print(cur_y)
-
-    # for idx, data in enumerate(val_loader):
-    #     cur_x, cur_y = data.pos, data.y
-    #     print('Val || Iteration:{}, data shape:{}, label shape:{}'.format(idx, cur_x.shape, cur_y.shape))
-    #     # print(torch.min(cur_x), torch.max(cur_x))
-    #     # print(cur_x)
-    #     print(cur_y)
-    #
-    # for idx, data in enumerate(test_loader):
-    #     cur_x, cur_y = data.pos, data.y
-    #     print('Test || Iteration:{}, data shape:{}, label shape:{}'.format(idx, cur_x.shape, cur_y.shape))
-    #     # print(torch.min(cur_x), torch.max(cur_x))
-    #     # print(cur_x)
-    #     print(cur_y)
-    # """
-
-# ['cMet-dimer/1000C797S_noH.pdb', 'cMet-dimer/1000G719S_noH.pdb', 'cMet-dimer/1000LT_noH.pdb', 'cMet-dimer/1000L_noH.pdb', 'cMet-dimer/1000T854A_noH.pdb', 'cMet-dimer/1000WT_noH.pdb',
-# 'EGFR-dimer/1000C797S_noH.pdb', 'EGFR-dimer/1000G719S_noH.pdb', 'EGFR-dimer/1000LT_noH.pdb', 'EGFR-dimer/1000L_noH.pdb', 'EGFR-dimer/1000T854A_noH.pdb', 'EGFR-dimer/1000WT_noH.pdb',
-# 'ErbB2-dimer/1000C797S_noH.pdb', 'ErbB2-dimer/1000G719S_noH.pdb', 'ErbB2-dimer/1000LT_noH.pdb', 'ErbB2-dimer/1000L_noH.pdb', 'ErbB2-dimer/1000T854A_noH.pdb', 'ErbB2-dimer/1000WT_noH.pdb',
-# 'IGFR-dimer/1000C797S_noH.pdb', 'IGFR-dimer/1000G719S_noH.pdb', 'IGFR-dimer/1000LT_noH.pdb', 'IGFR-dimer/1000L_noH.pdb', 'IGFR-dimer/1000T854A_noH.pdb', 'IGFR-dimer/1000WT_noH.pdb']

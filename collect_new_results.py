@@ -53,9 +53,7 @@ def process_each_test_file(file_path):
 
 
 if __name__ == '__main__':
-    # file_root = './logs/EGFR_all_5G_5F/DeepSigL3_LocalTanh_C50_LN_LR1e-3_Drop0.2'
-    file_root = './logs/GPCR_B_5G_5F/DeepSigL3_C50_LocalTanh_LN_Drop0.2_LR1e-3_WM*'
-    # file_root = '/home/qtx/Projects/Personal/DeepSignatureV1/logs/baseline/GPCR/B_5G_5F/DeepSigL_C50_LR1e-3_LocalTanh_LN*'
+    file_root = './logs/EGFR_all_5G_5F/DeepSigL3_Local_C50_LN_LR1e-6_PW2.5'
 
     files = os.listdir(file_root)
     files.sort()

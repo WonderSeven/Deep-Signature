@@ -1,8 +1,4 @@
 # Spectral Clustering with Graph Neural Networks for Graph Pooling
-
-import pdb
-from math import ceil
-
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -11,65 +7,16 @@ from torch_geometric.nn import GCNConv
 from torch_geometric.utils import to_dense_adj, to_dense_batch
 
 
-# class LocalAggregator(nn.Module):
-#     def __init__(self, in_channels, out_channels, num_clusters, hidden_channels=32):
-#         super(LocalAggregator, self).__init__()
-#         self.conv1 = GCNConv(in_channels, hidden_channels)
-#         # num_nodes = ceil(0.5 * average_nodes)
-#         self.pool1 = nn.Linear(hidden_channels, 2 * num_clusters)
-#
-#         self.conv2 = DenseGraphConv(hidden_channels, hidden_channels)
-#         # TODO: multi-level aggregation
-#         # num_nodes = ceil(0.5 * average_nodes)
-#         self.pool2 = nn.Linear(hidden_channels, num_clusters)
-#
-#         self.conv3 = DenseGraphConv(hidden_channels, out_channels)
-#
-#     def forward(self, data):
-#         """
-#         :param data:
-#         :return:
-#         """
-#         x = data.pos.float().transpose(0, 1)
-#         edge_index = data.edge_index.long()
-#         edge_attr = data.edge_attr.float()
-#
-#         x = self.conv1(x, edge_index, edge_attr).relu()
-#         x = x.transpose(0, 1)
-#         x, mask = to_dense_batch(x, data.batch)
-#         adj = to_dense_adj(edge_index, data.batch)
-#         x = x.transpose(1, 2)
-#         s1 = self.pool1(x).mean(1).tanh() # .softmax(dim=-1) GPCR:.tanh()
-#         x, adj, mc1, o1 = dense_mincut_pool(x, adj, s1, mask) #
-#
-#         x = self.conv2(x, adj).relu()
-#         s2 = self.pool2(x).mean(1).tanh() # .softmax(dim=-1) GPCR: .tanh()
-#         x, adj, mc2, o2 = dense_mincut_pool(x, adj, s2)
-#
-#         x = self.conv3(x, adj)
-#
-#         # Trick: ensure the consistency for pooling in dense_mincut_pool
-#         s1, s2 = torch.softmax(s1, dim=-1), torch.softmax(s2, dim=-1)
-#         agg_matrix = torch.bmm(s1, s2) # [48, 400, 30]
-#
-#         return x, mc1 + mc2, o1 + o2, agg_matrix
-
-
 class LocalAggregator(nn.Module):
     def __init__(self, in_channels, out_channels, num_clusters, hidden_channels=32):
         super(LocalAggregator, self).__init__()
         self.conv1 = GCNConv(in_channels, hidden_channels)
-        # num_nodes = ceil(0.5 * average_nodes)
         self.pool1 = nn.Linear(hidden_channels, 8 * num_clusters)
-
+        # multi-level aggregation
         self.conv2 = DenseGraphConv(hidden_channels, hidden_channels)
-        # multi-level aggregation
-        # num_nodes = ceil(0.5 * average_nodes)
         self.pool2 = nn.Linear(hidden_channels, 4 * num_clusters)
-
-        self.conv3 = DenseGraphConv(hidden_channels, hidden_channels)
         # multi-level aggregation
-        # num_nodes = ceil(0.5 * average_nodes)
+        self.conv3 = DenseGraphConv(hidden_channels, hidden_channels)
         self.pool3 = nn.Linear(hidden_channels, num_clusters)
 
         self.conv4 = DenseGraphConv(hidden_channels, out_channels)
@@ -90,24 +37,24 @@ class LocalAggregator(nn.Module):
         x, mask = to_dense_batch(x, data.batch)
         adj = to_dense_adj(edge_index, data.batch)
         x = x.transpose(1, 2)
-        s1 = self.pool1(x).mean(1).tanh() # .softmax(dim=-1)  #
-        x, adj, mc1, o1 = dense_mincut_pool(x, adj, s1) # , mask
+        s1 = self.pool1(x).mean(1).tanh()
+        x, adj, mc1, o1 = dense_mincut_pool(x, adj, s1, mask)
 
         x = self.conv2(x, adj)
-        s2 = self.pool2(x).mean(1).tanh() # .softmax(dim=-1)  #
+        s2 = self.pool2(x).mean(1).tanh()
         x, adj, mc2, o2 = dense_mincut_pool(x, adj, s2)
 
         x = self.conv3(x, adj)
-        s3 = self.pool3(x).mean(1).tanh() # .softmax(dim=-1)  #
+        s3 = self.pool3(x).mean(1).tanh()
         x, adj, mc3, o3 = dense_mincut_pool(x, adj, s3)
 
         x = self.conv4(x, adj)
 
-        # Trick: ensure the consistency for pooling in dense_mincut_pool
+        # Ensure the consistency for pooling in dense_mincut_pool
         s1, s2, s3 = torch.softmax(s1, dim=-1), torch.softmax(s2, dim=-1), torch.softmax(s3, dim=-1)
 
-        agg_matrix = torch.bmm(s1, s2) # [48, 400, 30]
-        agg_matrix = torch.bmm(agg_matrix, s3) # [48, 400, 30]
+        agg_matrix = torch.bmm(s1, s2)
+        agg_matrix = torch.bmm(agg_matrix, s3)
 
         return x, mc1 + mc2 + mc3, o1 + o2 + o3, agg_matrix
 
@@ -116,12 +63,10 @@ class FrameAggregator(nn.Module):
     def __init__(self, in_channels, out_channels, num_clusters, hidden_channels=32):
         super(FrameAggregator, self).__init__()
         self.conv1 = GCNConv(in_channels, hidden_channels)
-        # num_nodes = ceil(0.5 * average_nodes)
         self.pool1 = nn.Linear(hidden_channels, 2 * num_clusters)
 
         self.conv2 = DenseGraphConv(hidden_channels, hidden_channels)
-        # TODO: multi-level aggregation
-        # num_nodes = ceil(0.5 * average_nodes)
+        # multi-level aggregation
         self.pool2 = nn.Linear(hidden_channels, num_clusters)
 
         self.conv3 = DenseGraphConv(hidden_channels, out_channels)
@@ -138,14 +83,14 @@ class FrameAggregator(nn.Module):
 
         x = self.conv1(x, edge_index, edge_attr).relu()
         x = x.transpose(0, 1)
-        x, mask = to_dense_batch(x, data.batch) # mask仅针对batch切分, 与时间无关
+        x, mask = to_dense_batch(x, data.batch)
         adj = to_dense_adj(edge_index, data.batch)
         x = x.transpose(1, 2)
-        s1 = self.pool1(x).mean(1).tanh() # .softmax(dim=-1) GPCR:.tanh()
+        s1 = self.pool1(x).mean(1).tanh()
         x, adj, mc1, o1 = dense_mincut_pool(x, adj, s1, mask)
 
         x = self.conv2(x, adj).relu()
-        s2 = self.pool2(x).mean(1) #.softmax(dim=-1) # .tanh()
+        s2 = self.pool2(x).mean(1).tanh()
         x, adj, mc2, o2 = dense_mincut_pool(x, adj, s2)
 
         x = self.conv3(x, adj)
