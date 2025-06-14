@@ -89,7 +89,7 @@ def get_loss_func(cfg):
     elif name == 'f1':
         return nn.L1Loss()
     elif name == 'bce':
-        return nn.BCEWithLogitsLoss(pos_weight=torch.tensor(1.5))  #
+        return nn.BCEWithLogitsLoss(pos_weight=torch.tensor(1.0))  #
     else:
         raise ValueError('criterion should be cross_entropy')
 
