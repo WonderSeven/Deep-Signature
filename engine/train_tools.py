@@ -8,7 +8,6 @@ from engine.common import AverageMeter, ProgressMeter
 from sklearn.metrics import f1_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
-# from models.loss_func import *
 
 
 def train(cfg, epoch, algorithm, train_loader, optimizer, criterion, use_cuda=True, print_freq=50, writer=None):
@@ -36,7 +35,6 @@ def train(cfg, epoch, algorithm, train_loader, optimizer, criterion, use_cuda=Tr
 
         e_loss = 0.01 * e_loss # 0.01
         cla_loss = 10. * cla_loss # 10.
-        # mc_loss, o_loss = 2. * mc_loss, 2. * o_loss
 
         local_loss = e_loss + mc_loss + o_loss + cla_loss
         print('Train idx: [{}/{}], Total: {:.4f}, Cla: {:.4f}, Energy: {:.4f}, Cut: {:.4f}, Ortho: {:.4f}'.format(idx,
@@ -48,7 +46,6 @@ def train(cfg, epoch, algorithm, train_loader, optimizer, criterion, use_cuda=Tr
                                                                                                    o_loss))
         optimizer.zero_grad()
         local_loss.backward()
-        # torch.nn.utils.clip_grad_norm_(algorithm.parameters(), 1., norm_type=2)
         optimizer.step()
 
         total_losses.update(local_loss.item(), batch_size)
@@ -96,7 +93,6 @@ def val(cfg, algorithm, val_loader, criterion, use_cuda=True, writer=None):
 
         e_loss = 0.01 * e_loss # 0.01
         cla_loss = 10. * cla_loss # 10.
-        # mc_loss, o_loss = 2. * mc_loss, 2. * o_loss
 
         local_loss = e_loss + mc_loss + o_loss + cla_loss
 
@@ -107,17 +103,8 @@ def val(cfg, algorithm, val_loader, criterion, use_cuda=True, writer=None):
         all_pred_y.append(pred_y.round().detach().cpu().numpy())
         all_target_y.append(data.y.cpu().numpy())
 
-        # print('Val idx: [{}/{}], Total: {:.4f}, Cla: {:.4f}, Energy: {:.4f}, Cut: {:.4f}, Ortho: {:.4f}'.format(idx,
-        #                                                                                            len(val_loader),
-        #                                                                                            local_loss,
-        #                                                                                            cla_loss,
-        #                                                                                            e_loss,
-        #                                                                                            mc_loss,
-        #                                                                                            o_loss))
-
     all_pred_y = np.concatenate(all_pred_y, axis=0).reshape(-1)
     all_target_y = np.concatenate(all_target_y, axis=0).reshape(-1)
-    # all_pred_y = (all_pred_y > 0.5).astype(np.int64) # delete sigmoid in classifier
     acc = accuracy_score(all_target_y, all_pred_y) * 100.
     recall = recall_score(all_target_y, all_pred_y, average='binary') * 100.
     f1 = f1_score(all_target_y, all_pred_y, average='binary') * 100.

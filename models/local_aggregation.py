@@ -24,8 +24,8 @@ class LocalAggregator(nn.Module):
 
     def forward(self, data):
         """
-        :param x: [48, 50, 100]
-        :param adj: [48, 25, 25]
+        :param x:
+        :param adj:
         :return:
         """
         x = data.pos.float().transpose(0, 1)

@@ -105,22 +105,6 @@ class EGFR(InMemoryDataset):
                 for edge in bond_graph.edges():
                     atom1, atom2 = edge
                     graph.add_edge(atom1.index, atom2.index)
-
-                # selection = traj.top.select('all')
-                # graph = nx.Graph()
-                # graph.add_nodes_from(selection)
-                #
-                # atom_mapping = {}
-                # for atom in topology.atoms:
-                #     atom_mapping[atom.name] = atom.index # Map the old index to the renamed atom name
-                #
-                # bond_graph = topology.to_bondgraph()
-                # for edge in bond_graph.edges():
-                #     atom1, atom2 = edge
-                #     atom1.index
-                #     pdb.set_trace()
-                #     graph.add_edge(atom_mapping[atom1.name], atom_mapping[atom2.name])
-
             elif self.atom_type == 'alpha_carbon':
                 alpha_carbon_indices = traj.topology.select('name CA')
                 # alpha_carbon_indices = traj.topology.select('name CA and protein')

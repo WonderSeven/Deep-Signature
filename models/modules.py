@@ -105,7 +105,7 @@ def dense_mincut_pool(
         mask = mask.unsqueeze(1).repeat(1, time_stamps, 1, 1)
         x = x * mask
 
-    out = torch.einsum('btik,bij->btjk', x, s) # [48, 25, 16, 10]
+    out = torch.einsum('btik,bij->btjk', x, s)
     out_adj = torch.matmul(torch.matmul(s.transpose(1, 2), adj), s)
 
     # MinCut regularization.

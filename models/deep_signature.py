@@ -33,14 +33,14 @@ class DeepSignature(AbstractMethod):
 
     def forward(self, data: Data):
         """
-        :param data: DataBatch(edge_index=[2, 29820], edge_attr=[29820, 1], y=[16, 1], pos=[19880, 100, 3], batch=[19880], ptr=[17])
+        :param data:
         :return:
         """
-        hidden_x, mc_loss, o_loss, agg_matrix = self.local_aggregator(data)  # hidden_x:[16, 100, 50, 20] agg_matrix:[16, 1384, 50]
+        hidden_x, mc_loss, o_loss, agg_matrix = self.local_aggregator(data)
         pred_e = self.energy_regressor(hidden_x).squeeze(-1)
 
         traj, batch = data.pos, data.batch
-        traj, mask = to_dense_batch(traj, data.batch)  # [16, 1384, 100, 3]
+        traj, mask = to_dense_batch(traj, data.batch)
         traj = traj.transpose(1, 2)
 
         # Clustering
